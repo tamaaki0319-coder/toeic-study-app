@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOEIC Study Log</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">TOEIC Study Log</p>
+      <h1>TOEIC学習記録</h1>
+    </div>
+    <button class="ghost-button" id="resetButton" type="button">全削除</button>
+  </header>
+
+  <main class="app-layout">
+    <section class="panel input-panel" aria-labelledby="studyFormTitle">
+      <h2 id="studyFormTitle">今日の学習を記録</h2>
+      <form id="studyForm">
+        <label>
+          日付
+          <input id="studyDate" type="date" required>
+        </label>
+
+        <label>
+          学習時間（分）
+          <input id="studyMinutes" type="number" min="1" step="1" placeholder="例: 60" required>
+        </label>
+
+        <label>
+          学習内容メモ
+          <textarea id="studyMemo" rows="4" placeholder="例: Part 5 文法、単語50個、公式問題集"></textarea>
+        </label>
+
+        <label>
+          TOEICスコア（任意）
+          <input id="toeicScore" type="number" min="10" max="990" step="5" placeholder="例: 730">
+        </label>
+
+        <button class="primary-button" type="submit">記録する</button>
+      </form>
+    </section>
+
+    <section class="summary-grid" aria-label="学習サマリー">
+      <article class="summary-card">
+        <span>合計学習時間</span>
+        <strong id="totalHours">0時間</strong>
+      </article>
+      <article class="summary-card">
+        <span>記録日数</span>
+        <strong id="studyDays">0日</strong>
+      </article>
+      <article class="summary-card">
+        <span>最新スコア</span>
+        <strong id="latestScore">未記録</strong>
+      </article>
+    </section>
+
+    <section class="panel chart-panel" aria-labelledby="chartTitle">
+      <div class="section-title">
+        <h2 id="chartTitle">勉強時間グラフ</h2>
+        <span>直近7件</span>
+      </div>
+      <div class="chart" id="studyChart" aria-live="polite"></div>
+    </section>
+
+    <section class="panel records-panel" aria-labelledby="recordsTitle">
+      <div class="section-title">
+        <h2 id="recordsTitle">記録一覧</h2>
+        <span id="recordCount">0件</span>
+      </div>
+      <div class="records" id="records"></div>
+    </section>
+  </main>
+
+  <template id="recordTemplate">
+    <article class="record-item">
+      <div>
+        <time class="record-date"></time>
+        <p class="record-memo"></p>
+      </div>
+      <div class="record-meta">
+        <strong class="record-minutes"></strong>
+        <span class="record-score"></span>
+        <button class="delete-button" type="button">削除</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
