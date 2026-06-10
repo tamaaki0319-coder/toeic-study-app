@@ -84,8 +84,15 @@ h2 {
   padding: 22px;
 }
 
-.input-panel {
-  grid-row: span 3;
+.input-panel,
+.analytics-panel {
+  grid-column: 1;
+}
+
+.summary-grid,
+.chart-panel,
+.records-panel {
+  grid-column: 2;
 }
 
 form {
@@ -137,6 +144,12 @@ button {
 
 .primary-button:hover {
   background: var(--accent-dark);
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
 }
 
 .ghost-button,
@@ -285,8 +298,12 @@ button {
     grid-template-columns: 1fr;
   }
 
-  .input-panel {
-    grid-row: auto;
+  .input-panel,
+  .analytics-panel,
+  .summary-grid,
+  .chart-panel,
+  .records-panel {
+    grid-column: auto;
   }
 }
 
@@ -297,6 +314,10 @@ button {
   }
 
   .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .button-row {
     grid-template-columns: 1fr;
   }
 

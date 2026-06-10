@@ -1,6 +1,11 @@
 const STORAGE_KEY = "toeic-study-records";
+const ANALYTICS_KEY = "toeic-google-analytics-id";
 
 const form = document.querySelector("#studyForm");
+const analyticsForm = document.querySelector("#analyticsForm");
+const analyticsId = document.querySelector("#analyticsId");
+const analyticsStatus = document.querySelector("#analyticsStatus");
+const clearAnalyticsButton = document.querySelector("#clearAnalyticsButton");
 const studyDate = document.querySelector("#studyDate");
 const studyMinutes = document.querySelector("#studyMinutes");
 const studyMemo = document.querySelector("#studyMemo");
@@ -17,6 +22,9 @@ const resetButton = document.querySelector("#resetButton");
 let studyRecords = loadRecords();
 
 studyDate.valueAsDate = new Date();
+analyticsId.value = loadAnalyticsId();
+setupAnalytics(analyticsId.value);
+renderAnalyticsStatus();
 render();
 
 form.addEventListener("submit", (event) => {
@@ -33,9 +41,34 @@ form.addEventListener("submit", (event) => {
 
   studyRecords.push(record);
   saveRecords();
+  trackEvent("study_record_added", {
+    study_minutes: record.minutes,
+    has_score: record.score !== null
+  });
   form.reset();
   studyDate.valueAsDate = new Date();
   render();
+});
+
+analyticsForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  const measurementId = analyticsId.value.trim().toUpperCase();
+  if (measurementId && !isValidMeasurementId(measurementId)) {
+    alert("測定IDは G- から始まる形式で入力してください。例: G-XXXXXXXXXX");
+    return;
+  }
+
+  saveAnalyticsId(measurementId);
+  analyticsId.value = measurementId;
+  setupAnalytics(measurementId);
+  renderAnalyticsStatus();
+});
+
+clearAnalyticsButton.addEventListener("click", () => {
+  saveAnalyticsId("");
+  analyticsId.value = "";
+  renderAnalyticsStatus();
 });
 
 records.addEventListener("click", (event) => {
@@ -44,6 +77,7 @@ records.addEventListener("click", (event) => {
 
   studyRecords = studyRecords.filter((record) => record.id !== button.dataset.id);
   saveRecords();
+  trackEvent("study_record_deleted");
   render();
 });
 
@@ -70,6 +104,55 @@ function loadRecords() {
 
 function saveRecords() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(studyRecords));
+}
+
+function loadAnalyticsId() {
+  return localStorage.getItem(ANALYTICS_KEY) || "";
+}
+
+function saveAnalyticsId(measurementId) {
+  if (measurementId) {
+    localStorage.setItem(ANALYTICS_KEY, measurementId);
+    return;
+  }
+
+  localStorage.removeItem(ANALYTICS_KEY);
+}
+
+function isValidMeasurementId(measurementId) {
+  return /^G-[A-Z0-9]+$/.test(measurementId);
+}
+
+function setupAnalytics(measurementId) {
+  if (!measurementId || !isValidMeasurementId(measurementId)) return;
+
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function gtag() {
+    window.dataLayer.push(arguments);
+  };
+
+  if (!document.querySelector(`script[data-analytics-id="${measurementId}"]`)) {
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(measurementId)}`;
+    script.dataset.analyticsId = measurementId;
+    document.head.append(script);
+  }
+
+  window.gtag("js", new Date());
+  window.gtag("config", measurementId);
+}
+
+function renderAnalyticsStatus() {
+  const measurementId = loadAnalyticsId();
+  analyticsStatus.textContent = measurementId ? "設定済み" : "未設定";
+}
+
+function trackEvent(eventName, parameters = {}) {
+  const measurementId = loadAnalyticsId();
+  if (!measurementId || typeof window.gtag !== "function") return;
+
+  window.gtag("event", eventName, parameters);
 }
 
 function render() {
